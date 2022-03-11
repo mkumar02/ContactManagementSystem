@@ -116,24 +116,29 @@ namespace ContactManagementSystemWeb.Controllers
         }
 
         // GET: ContactController/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var contact = await client.GetFromJsonAsync<Contact>("contact/" + id);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            return View(contact);
         }
 
         // POST: ContactController/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var response = await client.DeleteAsync("contact/" + id);
+            return RedirectToAction(nameof(Index));
+
         }
     }
 }
