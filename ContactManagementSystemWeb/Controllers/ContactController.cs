@@ -9,27 +9,36 @@ namespace ContactManagementSystemWeb.Controllers
     {
         HttpClient client = new HttpClient();
         private readonly IConfiguration Configuration;
-        private readonly string _baseUrl;
 
         public ContactController(IConfiguration configuration)
         {
             Configuration = configuration;
-            _baseUrl = Configuration["BaseUrl"];
+            client.BaseAddress = new Uri(Configuration["BaseUrl"]);
         }
 
         // GET: ContactController
         public async Task<ActionResult> Index()
         {
-            client.BaseAddress = new Uri(_baseUrl);
             var contacts = await client.GetFromJsonAsync<List<Contact>>("contact");
 
             return View(contacts);
         }
 
         // GET: ContactController/Details/5
-        public ActionResult Details(int id)
+        public async Task<ActionResult> Details(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var contact = await client.GetFromJsonAsync<Contact>("contact/" + id);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            return View(contact);
         }
 
         // GET: ContactController/Create
@@ -54,24 +63,49 @@ namespace ContactManagementSystemWeb.Controllers
         }
 
         // GET: ContactController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var contact = await client.GetFromJsonAsync<Contact>("contact/" + id);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            return View(contact);
         }
 
         // POST: ContactController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,JobTitle,Company,Address,Phone,Email,LastContactedDate,Comments,CreatedDate")] Contact contact)
         {
-            try
+            if (id != contact.Id)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            catch
+
+            if (ModelState.IsValid)
             {
-                return View();
+                try
+                {
+                    string jsonString = JsonSerializer.Serialize(contact);
+                    var response = await client.PutAsJsonAsync("contact/" + id, contact);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                catch
+                {
+                    return View(contact);
+                }
             }
+            return View(contact);
         }
 
         // GET: ContactController/Delete/5

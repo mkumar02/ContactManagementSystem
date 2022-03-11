@@ -35,7 +35,7 @@
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr onclick="location.href = '@Url.Action("Edit", "Contact", new { id = item.Id })'">
+        <tr role="button" onclick="location.href = '@Url.Action("Edit", "Contact", new { id = item.Id })'">
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
                 <br />
