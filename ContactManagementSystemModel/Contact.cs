@@ -10,22 +10,24 @@ namespace ContactManagementSystemModel
         public string Name { get; set; }
 
         [Display(Name = "Job Title")]
-        public string JobTitle { get; set; }
+        public string? JobTitle { get; set; }
 
-        public string Company { get; set; }
+        public string? Company { get; set; }
 
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
-        public string Phone { get; set; }
+        [Phone]
+        public string? Phone { get; set; }
 
-        public string Email { get; set; }
+        [EmailAddress]
+        public string? Email { get; set; }
 
         [Display(Name = "Last Contacted Date")]
         [DataType(DataType.Date)]
-        public DateTime LastContactedDate { get; set; }
+        public DateTime? LastContactedDate { get; set; }
 
         [StringLength(5000, ErrorMessage = "Comments cannot be longer than 5000 characters")]
-        public string Comments { get; set; }
+        public string? Comments { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime CreatedDate { get; set; }
