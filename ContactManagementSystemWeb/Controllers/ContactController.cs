@@ -1,25 +1,29 @@
 ﻿using ContactManagementSystemModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace ContactManagementSystemWeb.Controllers
 {
     public class ContactController : Controller
     {
+        HttpClient client = new HttpClient();
         private readonly IConfiguration Configuration;
+        private readonly string _baseUrl;
 
         public ContactController(IConfiguration configuration)
         {
             Configuration = configuration;
+            _baseUrl = Configuration["BaseUrl"];
         }
 
         // GET: ContactController
-        HttpClient client;
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            List<Contact> contacts = new List<Contact>();
-            client.BaseAddress = new Uri(Configuration["BaseUrl"]);
-            return View();
+            client.BaseAddress = new Uri(_baseUrl);
+            var contacts = await client.GetFromJsonAsync<List<Contact>>("contact");
+
+            return View(contacts);
         }
 
         // GET: ContactController/Details/5
