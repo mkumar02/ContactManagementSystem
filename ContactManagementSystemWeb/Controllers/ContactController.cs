@@ -50,16 +50,24 @@ namespace ContactManagementSystemWeb.Controllers
         // POST: ContactController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create([Bind("Id,Name,JobTitle,Company,Address,Phone,Email,LastContactedDate,Comments,CreatedDate")] Contact contact)
         {
-            try
+            if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    var response = await client.PostAsJsonAsync("contact/", contact);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                catch
+                {
+                    return View(contact);
+                }
             }
-            catch
-            {
-                return View();
-            }
+            return View(contact);
         }
 
         // GET: ContactController/Edit/5
@@ -93,7 +101,6 @@ namespace ContactManagementSystemWeb.Controllers
             {
                 try
                 {
-                    string jsonString = JsonSerializer.Serialize(contact);
                     var response = await client.PutAsJsonAsync("contact/" + id, contact);
                     if (response.IsSuccessStatusCode)
                     {
